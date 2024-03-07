@@ -99,35 +99,35 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
     client = OpenAI(api_key=api_key)
-    error_rows = []  # 오류가 발생한 열을 추적하는 리스트
+    error_rows = []  # List to track rows where an error occurred
     logging.info("Loading image data from CSV files...")
-    csv_file_paths = ['data/pilot2/eng_0.csv', 'data/pilot2/eng_1.csv', 'data/pilot2/eng_2.csv', 'data/pilot2/eng_3.csv']
+    csv_file_paths = ['data/pilot2/kor_0.csv', 'data/pilot2/kor_1.csv', 'data/pilot2/kor_2.csv', 'data/pilot2/kor_3.csv']
     combined_data = load_image_data_from_csvs(csv_file_paths)
     combined_data[['caption1', 'caption2', 'caption3']] = combined_data.apply(lambda row: pd.Series(shuffle_captions(row)), axis=1)
     
     results_dir = 'result'
     os.makedirs(results_dir, exist_ok=True)
-    results_file_path = os.path.join(results_dir, 'humor_en_response_texts.csv')
-    
+    results_file_path = os.path.join(results_dir, 'humor_ko_response_texts.csv')
     
     logging.info(f"Processing images for humor evaluation...")
     for index, row in combined_data.iterrows():
         logging.info(f"Processing image {index + 1}/{len(combined_data)}...")
         captions = [row['caption1'], row['caption2'], row['caption3']]
-        response_text = get_image_caption(client, row['url'], captions, 'en')
-        combined_data['response_text'] = response_text
+        response_text = get_image_caption(client, row['url'], captions, 'ko')
+
         if "error" in response_text:
-            error_rows.append(index)  # 오류가 발생한 열의 인덱스를 저장
-            continue  # 다음 열로 넘어감
-        
-        combined_data.loc[index, 'response_text'] = response_text
-        
-    
+            error_rows.append(index)  # Store the index of the row where an error occurred
+            logging.error(f"Error processing row {index}: {response_text}")
+            continue  # Skip to the next row
+
+        # Correctly assign the response text to the current row's 'response_text' field
+        combined_data.at[index, 'response_text'] = response_text
 
     combined_data.to_csv(results_file_path, index=False, encoding='utf-8')
     
     logging.info(f"Responses have been saved to {results_file_path}")
     if error_rows:
         logging.error(f"Errors occurred in the following rows: {error_rows}")
+
 if __name__ == "__main__":
     main()
