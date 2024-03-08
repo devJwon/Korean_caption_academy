@@ -39,7 +39,7 @@ def get_image_caption(image_url, prompt):
     )
     return response.choices[0].message.content
 
-csv_file_path = 'data/korean_github_image.csv'
+csv_file_path = 'data/ny_url.csv'
 image_urls = load_image_urls_from_csv(csv_file_path)
 
 # Prepare the results directory and file
@@ -47,7 +47,7 @@ results_dir = 'result'
 if not os.path.exists(results_dir):
     os.makedirs(results_dir)
 
-results_file_path = os.path.join(results_dir, '[pilot2]humor_caption_ko.csv')
+results_file_path = os.path.join(results_dir, 'ny_description.csv')
 
 korean_prompt = '그림을 보고 한 문장으로 묘사해줘'
 english_prompt = 'Look at the picture and describe it in one sentence'
@@ -58,8 +58,10 @@ with open(results_file_path, mode='w', newline='', encoding='utf-8') as file:
     writer.writerow(["URL", "Caption"])  # Write the header row
 
     for image_url in image_urls:
-        caption = get_image_caption(image_url, korean_prompt)
-        writer.writerow([image_url, caption])  # Write the URL and its caption
-        print(f"Processed URL: {image_url} - Caption: {caption}")
-
+        try:
+            caption = get_image_caption(image_url, english_prompt)
+            writer.writerow([image_url, caption])  # Write the URL and its caption
+            print(f"Processed URL: {image_url} - Caption: {caption}")
+        except:
+            print(f"Processed URL: {image_url} - Caption: ERROR")
 print(f"Captions have been saved to {results_file_path}")

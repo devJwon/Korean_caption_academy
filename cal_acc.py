@@ -24,7 +24,7 @@ def calculate_accuracy(df):
     accuracy = (correct_predictions / total_predictions) * 100
     return accuracy
 
-data = pd.read_csv('result/humor_en_response_texts.csv')
+data = pd.read_csv('result/humor_ny_response_texts.csv')
 # Apply the function to extract numbers
 data['selected_caption_number'] = data['response_text'].apply(extract_number)
 

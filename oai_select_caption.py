@@ -91,7 +91,7 @@ Return the chosen caption in JSON format: {{selected caption number:'caption tex
 
         return response_text
     
-    except BadRequestError as e:
+    except 'BadRequestError' as e:
         logging.error(f"BadRequestError for image URL: {image_url}. Error: {e}")
         return json.dumps({"error": str(e)}) 
 
@@ -101,19 +101,19 @@ def main():
     client = OpenAI(api_key=api_key)
     error_rows = []  # List to track rows where an error occurred
     logging.info("Loading image data from CSV files...")
-    csv_file_paths = ['data/pilot2/kor_0.csv', 'data/pilot2/kor_1.csv', 'data/pilot2/kor_2.csv', 'data/pilot2/kor_3.csv']
+    csv_file_paths = ['data/pilot2/ny_0.csv', 'data/pilot2/ny_1.csv', 'data/pilot2/ny_2.csv', 'data/pilot2/ny_3.csv']
     combined_data = load_image_data_from_csvs(csv_file_paths)
     combined_data[['caption1', 'caption2', 'caption3']] = combined_data.apply(lambda row: pd.Series(shuffle_captions(row)), axis=1)
     
     results_dir = 'result'
     os.makedirs(results_dir, exist_ok=True)
-    results_file_path = os.path.join(results_dir, 'humor_ko_response_texts.csv')
+    results_file_path = os.path.join(results_dir, 'humor_ny_response_texts.csv')
     
     logging.info(f"Processing images for humor evaluation...")
     for index, row in combined_data.iterrows():
         logging.info(f"Processing image {index + 1}/{len(combined_data)}...")
         captions = [row['caption1'], row['caption2'], row['caption3']]
-        response_text = get_image_caption(client, row['url'], captions, 'ko')
+        response_text = get_image_caption(client, row['url'], captions, 'en')
 
         if "error" in response_text:
             error_rows.append(index)  # Store the index of the row where an error occurred
