@@ -30,19 +30,13 @@ def load_image_data_from_csvs(csv_file_paths):
     return combined_data
 
 def shuffle_captions(row):
-    captions = [row['real_caption'], row['random_caption'], row['description']]
+    captions = [row['real_description'], row['random_description'], row['humor_caption']]
     random.shuffle(captions)
     return captions
 
 def get_image_caption(client, image_data, captions, language='en'):
     prompt = f"""
-[Task] Select the most humorous caption related to the provided image. The chosen caption should humorously describe the image and be relevant to its context.
-
-[Instructions]
-- Evaluate the humor of each provided caption.
-- Ensure the caption is directly related to the image.
-- Avoid captions that merely describe the image without humor.
-- Choose the caption that is most humorous and relevant.
+[Task] Choose the caption that best describes the given picture
 
 [Output Format]
 Return the chosen caption in JSON format: {{selected caption number:'caption text'}}.
@@ -52,25 +46,19 @@ Return the chosen caption in JSON format: {{selected caption number:'caption tex
 2: {captions[1]}
 3: {captions[2]}
 
-[Choose the most humorous caption]
+[Choose the besr caption]
     """ if language == 'en' else f"""
-[과제] 제공된 이미지와 관련된 가장 재미있는 제목을 선택합니다. 선택한 제목은 이미지를 유머러스하게 설명해야 하며 이미지의 맥락과 관련이 있어야 합니다.
-
-[지침]
-- 제공된 각 제목의 유머를 평가합니다.
-- 제목이 이미지와 직접 관련이 있는지 확인합니다.
-- 유머 없이 단순히 이미지를 설명하는 제목은 피하세요.
-- 가장 유머러스하고 관련성이 높은 제목을 선택하세요.
+[과제] 주어진 그림을 가장 잘 설명하고 있는 caption을 고르세요.
 
 [출력 형식]
-선택한 제목을 JSON 형식으로 반환합니다: {{'제목 번호':'제목 텍스트'}}.
+선택한 caption을 JSON 형식으로 반환하세요 : {{'caption 번호':'caption 텍스트'}}.
 
-[제목]
+[caption]
 1: {captions[0]}
 2: {captions[1]}
 3: {captions[2]}
 
-[가장 재미있는 제목]
+[가장 잘 설명한 caption]
     """   
     try:
         # Assuming the client can handle base64 encoded images directly; adjust as necessary.
@@ -107,17 +95,20 @@ Return the chosen caption in JSON format: {{selected caption number:'caption tex
 def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+    lang = 'en'
+    # lang = 'ko'
+
     # Use your anthropic client initialization here
     client = anthropic.Anthropic(api_key=api_key)  # Adjusted to use the Anthropics client with an API key
     error_rows = []
     logging.info("Loading image data from CSV files...")
-    csv_file_paths = ['data/pilot2/kor_0.csv', 'data/pilot2/kor_1.csv', 'data/pilot2/kor_2.csv', 'data/pilot2/kor_3.csv']
+    csv_file_paths = ['data/desc/ed_0.csv', 'data/desc/ed_1.csv', 'data/desc/ed_2.csv', 'data/desc/ed_3.csv']
     combined_data = load_image_data_from_csvs(csv_file_paths)
     combined_data[['caption1', 'caption2', 'caption3']] = combined_data.apply(lambda row: pd.Series(shuffle_captions(row)), axis=1)
     
-    results_dir = 'result'
+    results_dir = 'result/desc'
     os.makedirs(results_dir, exist_ok=True)
-    results_file_path = os.path.join(results_dir, 'claude_Ko_response_texts.csv')
+    results_file_path = os.path.join(results_dir, f'claude_{lang}_desc.csv')
     
     logging.info(f"Processing images for humor evaluation...")
     for index, row in combined_data.iterrows():
@@ -125,7 +116,7 @@ def main():
         image_data = fetch_and_encode_image(row['url'])
         if image_data:
             captions = [row['caption1'], row['caption2'], row['caption3']]
-            response_text = get_image_caption(client, image_data, captions, 'ko')
+            response_text = get_image_caption(client, image_data, captions, lang)
             if "error" not in response_text:
                 combined_data.at[index, 'response_text'] = response_text
             else:
