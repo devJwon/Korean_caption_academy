@@ -46,7 +46,7 @@ Return the chosen caption in JSON format: {{selected caption number:'caption tex
 2: {captions[1]}
 3: {captions[2]}
 
-[Choose the besr caption]
+[Best caption]
     """ if language == 'en' else f"""
 [과제] 주어진 그림을 가장 잘 설명하고 있는 caption을 고르세요.
 
