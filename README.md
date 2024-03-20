@@ -30,9 +30,13 @@
 ## 데이터 예시
 
 ```json
-
-[{"image_url":"https:\/\/github.com\/devJwon\/humor-image-captioning\/blob\/c4f76c427eab74c86a8be40bdb0aa80ea02d351b\/images\/crop\/crop_00000002.jpg?raw=true","humor_caption":"아빠 저녁거리 데려왔어요; 순서대로 털 벗고 불판에 올라가거라","description":"호랑이 캐릭터가 녹색 스웨터를 입고 바비큐를 하고 있는 동안 다른 호랑이 캐릭터들이 기대에 찬 눈빛으로 보고 있어요."}]
-
+[
+  {
+    "image_url": "https://github.com/devJwon/humor-image-captioning/blob/c4f76c427eab74c86a8be40bdb0aa80ea02d351b/images/crop/crop_00000002.jpg?raw=true",
+    "humor_caption": "아빠 저녁거리 데려왔어요; 순서대로 털 벗고 불판에 올라가거라",
+    "description": "호랑이 캐릭터가 녹색 스웨터를 입고 바비큐를 하고 있는 동안 다른 호랑이 캐릭터들이 기대에 찬 눈빛으로 보고 있어요."
+  }
+]
 ```
 
 
