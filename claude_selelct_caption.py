@@ -35,19 +35,21 @@ def shuffle_captions(row):
     return captions
 
 def get_image_caption(client, image_data, captions, language='en'):
-    prompt = f"""
-[Task] Choose the caption that best describes the given picture
+    if language == 'en':
+        prompt = f"""
+[Task] Select the caption that most accurately describes the provided image.
 
-[Output Format]
-Return the chosen caption in JSON format: {{selected caption number:'caption text'}}.
+[Output Format] Respond in JSON format, specifying the number of the selected caption along with its text, as follows: {{"selected_caption_number": "caption_text"}}.
 
 [captions]
 1: {captions[0]}
 2: {captions[1]}
 3: {captions[2]}
 
-[Best caption]
-    """ if language == 'en' else f"""
+[Choose the Best caption]
+"""
+    else: 
+        prompt =f"""
 [과제] 주어진 그림을 가장 잘 설명하고 있는 caption을 고르세요.
 
 [출력 형식]
@@ -59,7 +61,7 @@ Return the chosen caption in JSON format: {{selected caption number:'caption tex
 3: {captions[2]}
 
 [가장 잘 설명한 caption]
-    """   
+    """
     try:
         # Assuming the client can handle base64 encoded images directly; adjust as necessary.
         response = client.messages.create(

@@ -28,17 +28,20 @@ def shuffle_captions(row):
 
 def get_image_caption(client, image_url, captions, language='en'):
     prompt = f"""
-[Task] Choose the caption that best describes the given picture
+Your task is to evaluate an image and select the most accurate caption that describes it. Based on the captions provided below, choose the one that best captures the essence of the image. Please format your response as a JSON object, including the number of the chosen caption and its corresponding text.
 
-[Output Format]
-Return the chosen caption in JSON format: {{selected caption number:'caption text'}}.
+Example of desired output format:
+{{
+  "selected_caption_number": 1,
+  "caption_text": "A serene lake surrounded by mountains under a clear blue sky."
+}}
 
-[captions]
+Available captions for selection:
 1: {captions[0]}
 2: {captions[1]}
 3: {captions[2]}
 
-[Best caption]
+After reviewing the image, select the caption that most accurately describes it and format your response according to the example provided.
     """ if language == 'en' else f"""
 [과제] 주어진 그림을 가장 잘 설명하고 있는 caption을 고르세요.
 
@@ -89,19 +92,19 @@ def main():
     client = OpenAI(api_key=api_key)
     error_rows = []  # List to track rows where an error occurred
     logging.info("Loading image data from CSV files...")
-    csv_file_paths = ['data/desc/kd_0.csv', 'data/desc/kd_1.csv', 'data/desc/kd_2.csv', 'data/desc/kd_3.csv']
+    csv_file_paths = ['data/desc/ed_0.csv', 'data/desc/ed_1.csv', 'data/desc/ed_2.csv', 'data/desc/ed_3.csv']
     combined_data = load_image_data_from_csvs(csv_file_paths)
     combined_data[['caption1', 'caption2', 'caption3']] = combined_data.apply(lambda row: pd.Series(shuffle_captions(row)), axis=1)
     
     results_dir = 'result'
     os.makedirs(results_dir, exist_ok=True)
-    results_file_path = os.path.join(results_dir, 'gpt_ko_desc.csv')
+    results_file_path = os.path.join(results_dir, 'gpt_en_desc.csv')
     
     logging.info(f"Processing images for humor evaluation...")
     for index, row in combined_data.iterrows():
         logging.info(f"Processing image {index + 1}/{len(combined_data)}...")
         captions = [row['caption1'], row['caption2'], row['caption3']]
-        response_text = get_image_caption(client, row['url'], captions, 'ko')
+        response_text = get_image_caption(client, row['url'], captions, 'en')
 
         if "error" in response_text:
             error_rows.append(index)  # Store the index of the row where an error occurred
